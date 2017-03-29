@@ -1,4 +1,4 @@
-
+import itertools
 '''
  prints out the board
 '''
@@ -50,11 +50,11 @@ def gameOver(board):
 
 
     if (len(set(rowsTaken1)) == len(board) and len(set(colsTaken1)) == len(board)):
-        return True
+        return (True,1)
     elif (len(set(rowsTaken2)) == len(board) and len(set(colsTaken2)) == len(board)):
-        return True
+        return (True,2)
     else:
-        return False
+        return (False,0)
     
 
 
@@ -65,8 +65,48 @@ then the value is -100. Otherwise, it is the number of ways in which player 1 ca
 minus the number of ways in which player 2 can win.
 '''
 def staticEval(gameBoard):
-    return 100
+    status = gameOver(gameBoard)
+    if(status[0] and status[1] == 1):
+        return 100
+    elif(status[0] and status[1] ==2):
+        return -100
+    else:
+        print("yo")
+        #generate all possible solutions
+                
+'''
+    returns a list of all possible solutions to this game
+    with row col  being filled
+'''
+def possibleSolutions(row,col):
+    #need to do this function
+    print("yo")
 
+
+
+
+def availMoves(gameBoard):
+    moves = [[(i,j) for(j,x) in enumerate(row) if x==0] for (i,row) in enumerate(gameBoard)]
+    moves = [j for i in moves for j in i]
+    print(moves)
+    return moves
+
+
+def minMax(gameBoard,num_expanded,maxMin):
+    # if its a max node
+    if (maxMin ==1):
+        print("yo")
+
+
+    for m in availMoves(gameBoard):
+        print("yo")
+
+
+    minMax(gameBoard,num_expanded,not bool(maxMin))
+
+
+
+    
 
 def testCase(gameBoard):
     #should return true
@@ -75,7 +115,29 @@ def testCase(gameBoard):
     move(gameBoard,2,3,1)
     move(gameBoard,3,1,1)
     printBoard(gameBoard)
-    print(str(gameOver(gameBoard)))
+    print(str(gameOver(gameBoard)[0]))
+
+def testCase2(gameBoard):
+    move(gameBoard,0,0,1)
+    move(gameBoard,0,1,2)
+    move(gameBoard,0,2,1)
+    move(gameBoard,0,3,2)
+    move(gameBoard,1,0,2)
+    move(gameBoard,1,1,1)
+    move(gameBoard,2,0,1)
+    move(gameBoard,3,0,2)
+    printBoard(gameBoard)
+    availMoves(gameBoard)
+    print(staticEval(gameBoard))
+
+def testCase3(gameBoard):
+    move(gameBoard,0,0,1)
+    move(gameBoard,1,2,1)
+    move(gameBoard,2,1,1)
+    move(gameBoard,3,3,1)
+    printBoard(gameBoard)
+
+
 
 def main():
     # get row and col from user
@@ -91,10 +153,9 @@ def main():
         gameBoard.append([])
         for j in range(col):
             gameBoard[i].append(0)
-    printBoard(gameBoard)
+    possibleSolutions(0,0)
 
 
-    testCase(gameBoard)
 
 
 
