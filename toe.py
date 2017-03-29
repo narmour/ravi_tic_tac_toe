@@ -71,34 +71,88 @@ def staticEval(gameBoard):
     elif(status[0] and status[1] ==2):
         return -100
     else:
-        print("yo")
-        #generate all possible solutions
+        p1_wins = 0
+        p2_wins = 0
+        for i in range(len(gameBoard)):
+            for j in range(len(gameBoard[i])):
+                #print("check " +str(i) + " " + str(j) )
+                solutions = possibleSolutions(len(gameBoard),i,j)
+                if(gameBoard[i][j] ==1):
+                    for s in solutions:
+                        #check every tuple in every solution
+                        possible = 1
+                        for k in s:
+                            if(gameBoard[k[0]][k[1]] ==2):
+                                possible = 0
+                                break
+                        if(possible):
+                            p1_wins+=1
+                elif(gameBoard[i][j] ==2):
+                    for s in solutions:
+                        possible = 1
+                        #check every tuple in every solution
+                        for k in s:
+                            if(gameBoard[k[0]][k[1]] ==1):
+                                possible =0
+                                break
+                        if(possible):
+                            p2_wins+=1
+                else:
+                    for s in solutions:
+                        possible = 1
+                        #check every tuple in every solution
+                        for k in s:
+                            if(gameBoard[k[0]][k[1]] !=0):
+                                possible =0
+                                break
+                        if(possible):
+                            #p1_wins+=1
+                            #p2_wins+=1
+                            print("yo")
+
+
+
+
+        print("p1 wins: " + str(p1_wins))
+        print("p2 wins: " + str(p2_wins))
+
+
+
+
                 
 '''
     returns a list of all possible solutions to this game
     with row col  being filled
 '''
 def possibleSolutions(k,row,col):
-    #need to do this function
+
     solutions = []
     rowsTaken = []
-    colsTaken = []
-    
-    for l in range(k):
-        solutions.append([(row,col)])
+    colsTaken=[]
+    permutes = list(itertools.permutations(range(k)))
+    for p in range(len(permutes)):
+        solutions.append([])
         rowsTaken.append([row])
         colsTaken.append([col])
         for i in range(k):
             for j in range(k):
-                if(i not in rowsTaken[l] and (j+l)%k not in colsTaken[l]):
-                    solutions[l].append((i,(j+l)%k))
-                    colsTaken[l].append((j+l) %k)
-                    rowsTaken[l].append(i)
+                if(i not in rowsTaken[p] and permutes[p][j] not in colsTaken[p]):
+                    solutions[p].append((i,permutes[p][j]))
+                    rowsTaken[p].append(i)
+                    colsTaken[p].append(permutes[p][j])
 
-    # get rid of duplicate solutions?
-    solutions = [x for (idx,x) in enumerate(solutions) if x[1] != solutions[idx-1][1]]
-    for s in solutions:
-        print(s)
+    #get rid of duplicates
+    unique = []
+    [unique.append(s) for s in solutions if s not in unique]
+
+
+    #for s in unique:
+        #print(s)
+
+    #print()
+
+    return unique
+
 
     
 
@@ -149,9 +203,10 @@ def testCase2(gameBoard):
     move(gameBoard,1,1,1)
     move(gameBoard,2,0,1)
     move(gameBoard,3,0,2)
+    #move(gameBoard,3,3,1)
     printBoard(gameBoard)
-    availMoves(gameBoard)
-    print(staticEval(gameBoard))
+    #availMoves(gameBoard)
+    staticEval(gameBoard)
 
 def testCase3(gameBoard):
     move(gameBoard,0,0,1)
@@ -176,7 +231,15 @@ def main():
         gameBoard.append([])
         for j in range(col):
             gameBoard[i].append(0)
-    possibleSolutions(row,0,0)
+    #move(gameBoard,0,0,1)
+    #move(gameBoard,1,2,1)
+    #move(gameBoard,2,1,1)
+    #move(gameBoard,3,3,1)
+    #print(gameOver(gameBoard))
+
+    #printBoard(gameBoard)
+    #possibleSolutions(len(gameBoard),0,0)
+    testCase2(gameBoard)
 
 
 
