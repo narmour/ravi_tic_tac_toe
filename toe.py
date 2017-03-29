@@ -78,9 +78,41 @@ def staticEval(gameBoard):
     returns a list of all possible solutions to this game
     with row col  being filled
 '''
-def possibleSolutions(row,col):
+def possibleSolutions(k,row,col):
     #need to do this function
-    print("yo")
+
+    game = []
+    for i in range(k):
+        game.append([])
+        for j in range(k):
+            game[i].append(0)
+    printBoard(game)
+
+
+    solutions = []
+    rowsTaken = []
+    colsTaken = []
+    
+    for l in range(k):
+        solutions.append([(row,col)])
+        rowsTaken.append([row])
+        colsTaken.append([col])
+        for i in range(k):
+            for j in range(k):
+                if(i not in rowsTaken[l] and (j+l)%k not in colsTaken[l]):
+                    solutions[l].append((i,(j+l)%k))
+                    colsTaken[l].append((j+l) %k)
+                    rowsTaken[l].append(i)
+
+    # get rid of duplicate solutions?
+    solutions = [x for (idx,x) in enumerate(solutions) if x[1] != solutions[idx-1][1]]
+    for s in solutions:
+        print(s)
+
+    
+
+
+
 
 
 
@@ -153,7 +185,7 @@ def main():
         gameBoard.append([])
         for j in range(col):
             gameBoard[i].append(0)
-    possibleSolutions(0,0)
+    possibleSolutions(row,0,0)
 
 
 
