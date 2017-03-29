@@ -80,15 +80,6 @@ def staticEval(gameBoard):
 '''
 def possibleSolutions(k,row,col):
     #need to do this function
-
-    game = []
-    for i in range(k):
-        game.append([])
-        for j in range(k):
-            game[i].append(0)
-    printBoard(game)
-
-
     solutions = []
     rowsTaken = []
     colsTaken = []
