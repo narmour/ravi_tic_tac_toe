@@ -1,4 +1,6 @@
 import itertools
+import math
+import copy
 '''
  prints out the board
 '''
@@ -22,10 +24,13 @@ function returns board modified with [i][j] set to player if its empty
 else does nothing
 '''
 def move(board,i,j,player):
-    if(board[i][j] ==0):
-        board[i][j] = player
+    b = copy.deepcopy(board)
+    if(b[i][j] ==0):
+        b[i][j] = player
     else:
-        print("invalid move")
+        #print("invalid move")
+        return board
+    return b
 
 
 '''
@@ -33,29 +38,30 @@ returns true if it finds a player has won
 returns false if no player has own
 '''
 def gameOver(board):
-    rowsTaken1 = []
-    colsTaken1 = []
-
-    rowsTaken2 = []
-    colsTaken2 = []
-
+    p1 = []
+    p2 = []
     for i in range(len(board)):
         for j in range(len(board[i])):
-            if(board[i][j] == 1):
-                rowsTaken1.append(i)
-                colsTaken1.append(j)
-            elif(board[i][j] == 2):
-                rowsTaken2.append(i)
-                colsTaken2.append(j)
+            if(board[i][j] ==1):
+                p1.append((i,j))
+            elif(board[i][j] ==2):
+                p2.append((i,j))
 
-
-    if (len(set(rowsTaken1)) == len(board) and len(set(colsTaken1)) == len(board)):
-        return (True,1)
-    elif (len(set(rowsTaken2)) == len(board) and len(set(colsTaken2)) == len(board)):
-        return (True,2)
-    else:
-        return (False,0)
-    
+    ps = possibleSolutions(len(board))
+    p1_p = itertools.combinations(p1,len(board))
+    print("p1 combinations")
+    for p in p1_p:
+        print(p)
+        if p in ps:
+            return (True,1)
+    print()
+    p2_p = itertools.combinations(p2,len(board))
+    print("p2 combinations")
+    for p in p2_p:
+        print(p)
+        if p in ps:
+            return (True,2)
+    return (False,0)
 
 
 '''
@@ -122,20 +128,11 @@ def possibleSolutions(k):
     unique = []
     [unique.append(s) for s in solutions if s not in unique]
 
-
-    #[print(s) for s in unique]
-    #print()
+    print("possible solutions")
+    [print(s) for s in unique]
+    print()
 
     return unique
-
-
-    
-
-
-
-
-
-
 
 def availMoves(gameBoard):
     moves = [[(i,j) for(j,x) in enumerate(row) if x==0] for (i,row) in enumerate(gameBoard)]
@@ -143,54 +140,54 @@ def availMoves(gameBoard):
     print(moves)
     return moves
 
-
-def minMax(gameBoard,num_expanded,maxMin):
+def minMax(gameBoard,num_expanded,turn):
+    val = 0
+    # if its a leaf node
+    if(gameOver(gameBoard)[0]):
+        print("game over, winner: "+ str(gameOver(gameBoard)[1]))
+        printBoard(gameBoard)
+        return staticEval(gameBoard)
+    
     # if its a max node
-    if (maxMin ==1):
+    if (turn==1):
+        val = -float('inf')
         print("yo")
+    elif(turn==2):
+        val = float('inf')
 
 
     for m in availMoves(gameBoard):
-        print("yo")
+        n = 2 if turn==1 else 1
+        succ = move(gameBoard,m[0],m[1],turn)
+        printBoard(succ)
+        if(turn ==1):
+            val = max(val,minMax(succ,num_expanded+1,n))
+            #print("max: " + str(val))
+        else:
+            val = min(val,minMax(succ,num_expanded+1,n))
+            #print("mmin: " + str(val))
+    return val
 
 
-    minMax(gameBoard,num_expanded,not bool(maxMin))
 
 
 
-    
 
 def testCase(gameBoard):
-    #should return true
-    move(gameBoard,0,0,1)
-    move(gameBoard,1,2,1)
-    move(gameBoard,2,3,1)
-    move(gameBoard,3,1,1)
+    gameBoard = move(gameBoard,0,0,1)
+    gameBoard = move(gameBoard,0,1,2)
+    gameBoard = move(gameBoard,0,2,1)
+    gameBoard = move(gameBoard,0,3,2)
+    gameBoard = move(gameBoard,1,0,2)
+    gameBoard = move(gameBoard,1,1,1)
+    gameBoard = move(gameBoard,2,0,1)
+    gameBoard = move(gameBoard,3,0,2)
+    gameBoard = move(gameBoard,2,1,1)
+    gameBoard = move(gameBoard,2,2,2)
+    gameBoard = move(gameBoard,3,3,1)
     printBoard(gameBoard)
-    print(str(gameOver(gameBoard)[0]))
-
-def testCase2(gameBoard):
-    move(gameBoard,0,0,1)
-    move(gameBoard,0,1,2)
-    move(gameBoard,0,2,1)
-    move(gameBoard,0,3,2)
-    move(gameBoard,1,0,2)
-    move(gameBoard,1,1,1)
-    move(gameBoard,2,0,1)
-    move(gameBoard,3,0,2)
-    #move(gameBoard,3,3,1)
-    printBoard(gameBoard)
-    #availMoves(gameBoard)
-    staticEval(gameBoard)
-
-def testCase3(gameBoard):
-    move(gameBoard,0,0,1)
-    move(gameBoard,1,2,1)
-    move(gameBoard,2,1,1)
-    move(gameBoard,3,3,1)
-    printBoard(gameBoard)
-
-
+    gameOver(gameBoard)
+    #print(minMax(gameBoard,0,1))
 
 def main():
     # get row and col from user
@@ -206,7 +203,9 @@ def main():
         gameBoard.append([])
         for j in range(col):
             gameBoard[i].append(0)
-    testCase2(gameBoard)
+    testCase(gameBoard)
+    #printBoard(gameBoard)
+    #print(minMax(gameBoard,0,1))
 
 
 
