@@ -28,7 +28,7 @@ def move(board,i,j,player):
     if(b[i][j] ==0):
         b[i][j] = player
     else:
-        #print("invalid move")
+        print("invalid move")
         return board
     return b
 
@@ -57,6 +57,12 @@ def gameOver(board):
     for p in p2_p:
         if list(p) in ps:
             return (True,2)
+
+    if len(p1) + len(p2) == len(board) * len(board[0]):
+        return (True, -1)
+    
+
+
     return (False,0)
 
 
@@ -138,10 +144,10 @@ def availMoves(gameBoard):
     print(moves)
     return moves
 
-def minMax(gameBoard,num_expanded,turn):
+def minMax(gameBoard,depth,turn):
     val = 0
     # if its a leaf node
-    if(gameOver(gameBoard)[0]):
+    if(gameOver(gameBoard)[0]) or depth == 0:
         print("game over, winner: "+ str(gameOver(gameBoard)[1]))
         printBoard(gameBoard)
         return staticEval(gameBoard)
@@ -149,7 +155,6 @@ def minMax(gameBoard,num_expanded,turn):
     # if its a max node
     if (turn==1):
         val = -float('inf')
-        print("yo")
     elif(turn==2):
         val = float('inf')
 
@@ -159,15 +164,20 @@ def minMax(gameBoard,num_expanded,turn):
         succ = move(gameBoard,m[0],m[1],turn)
         printBoard(succ)
         if(turn ==1):
-            val = max(val,minMax(succ,num_expanded+1,n))
+            val = max(val,minMax(succ,depth-1,n))
             #print("max: " + str(val))
         else:
-            val = min(val,minMax(succ,num_expanded+1,n))
+            val = min(val,minMax(succ,depth-1,n))
             #print("mmin: " + str(val))
     return val
 
 
-
+def minMax2(gameBoard, turn):
+    if(gameOver(gameBoard)[0]):
+        print("game over, winner: "+ str(gameOver(gameBoard)[1]))
+        printBoard(gameBoard)
+        return staticEval(gameBoard)
+    
 
 
 
@@ -192,22 +202,30 @@ def testCase(gameBoard):
     gameBoard = move(gameBoard,2,2,1)
     gameBoard = move(gameBoard,3,0,1)
     '''
+    '''
     gameBoard = move(gameBoard,0,0,1)
     gameBoard = move(gameBoard,1,1,1)
     gameBoard = move(gameBoard,2,2,1)
     gameBoard = move(gameBoard,3,3,1)
     gameBoard = move(gameBoard,3,1,1)
+    '''
+
+    gameBoard = move(gameBoard, 0,0,1)
+    gameBoard = move(gameBoard, 0,1,2)
+    gameBoard = move(gameBoard, 0,2,1)
+    gameBoard = move(gameBoard, 0,3,2)
     printBoard(gameBoard)
     gameOver(gameBoard)
-    #print(minMax(gameBoard,0,1))
+    print(minMax(gameBoard,5,1))
 
 def main():
     # get row and col from user
-    user_input = input("enter in row and col space seperated: ")
-    if(len(user_input) < 3):
-        print("error in input")
-    row = int(user_input[0])
-    col = int(user_input[2])
+    #user_input = input("enter in row and col space seperated: ")
+    #if(len(user_input) < 3):
+    #    print("error in input")
+    #row = int(user_input[0])
+    #col = int(user_input[2])
+    row = col = 4
 
     #init gameBoard
     gameBoard = []
