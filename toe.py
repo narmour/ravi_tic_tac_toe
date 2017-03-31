@@ -46,22 +46,20 @@ def gameOver(board):
                 p1.append((i,j))
             elif(board[i][j] ==2):
                 p2.append((i,j))
-
     ps = possibleSolutions(len(board))
-    p1_p = itertools.combinations(p1,len(board))
-    print("p1 combinations")
+
+    p1_p = list(itertools.combinations(p1,len(board)))
     for p in p1_p:
-        print(p)
-        if p in ps:
-            return (True,1)
-    print()
-    p2_p = itertools.combinations(p2,len(board))
-    print("p2 combinations")
+        if list(p) in ps:
+            return(True,1)
+
+    p2_p = list(itertools.combinations(p2,len(board)))
     for p in p2_p:
-        print(p)
-        if p in ps:
+        if list(p) in ps:
             return (True,2)
     return (False,0)
+
+
 
 
 '''
@@ -128,8 +126,8 @@ def possibleSolutions(k):
     unique = []
     [unique.append(s) for s in solutions if s not in unique]
 
-    print("possible solutions")
-    [print(s) for s in unique]
+    #print("possible solutions")
+    #[print(s) for s in unique]
     print()
 
     return unique
@@ -174,6 +172,7 @@ def minMax(gameBoard,num_expanded,turn):
 
 
 def testCase(gameBoard):
+    '''
     gameBoard = move(gameBoard,0,0,1)
     gameBoard = move(gameBoard,0,1,2)
     gameBoard = move(gameBoard,0,2,1)
@@ -185,6 +184,19 @@ def testCase(gameBoard):
     gameBoard = move(gameBoard,2,1,1)
     gameBoard = move(gameBoard,2,2,2)
     gameBoard = move(gameBoard,3,3,1)
+    '''
+    '''
+    gameBoard = move(gameBoard,0,2,1)
+    gameBoard = move(gameBoard,1,1,1)
+    gameBoard = move(gameBoard,1,3,1)
+    gameBoard = move(gameBoard,2,2,1)
+    gameBoard = move(gameBoard,3,0,1)
+    '''
+    gameBoard = move(gameBoard,0,0,1)
+    gameBoard = move(gameBoard,1,1,1)
+    gameBoard = move(gameBoard,2,2,1)
+    gameBoard = move(gameBoard,3,3,1)
+    gameBoard = move(gameBoard,3,1,1)
     printBoard(gameBoard)
     gameOver(gameBoard)
     #print(minMax(gameBoard,0,1))
@@ -203,6 +215,7 @@ def main():
         gameBoard.append([])
         for j in range(col):
             gameBoard[i].append(0)
+    possibleSolutions(len(gameBoard))
     testCase(gameBoard)
     #printBoard(gameBoard)
     #print(minMax(gameBoard,0,1))
