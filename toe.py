@@ -144,16 +144,14 @@ def availMoves(gameBoard):
     #print(moves)
     return moves
 
-nodes_expanded = 0
-def minMax(gameBoard,turn):
-    global nodes_expanded
+def minMax(gameBoard,turn, nodes_expanded=0):
     val = 0
     # if its a leaf node
     if(gameOver(gameBoard)[1]==1 or gameOver(gameBoard)[1]==2):
         #print("game over, winner: "+ str(gameOver(gameBoard)[1]))
-        print("nodes expanded: ",nodes_expanded)
+        #print("nodes expanded: ",nodes_expanded)
         #printBoard(gameBoard)
-        return staticEval(gameBoard)
+        return (staticEval(gameBoard), nodes_expanded)
     
     # if its a max node
     if (turn==1):
@@ -163,24 +161,21 @@ def minMax(gameBoard,turn):
 
 
     for m in availMoves(gameBoard):
-        nodes_expanded = nodes_expanded +1
+        #nodes_expanded = nodes_expanded +1
         n = 2 if turn==1 else 1
         succ = move(gameBoard,m[0],m[1],turn)
         #printBoard(succ)
         if(turn ==1):
-            val = max(val,minMax(succ,n))
+            mmval, ne = minMax(succ,n, nodes_expanded)
+            nodes_expanded = ne + 1
+            val = max(val,mmval)
         else:
-            val = min(val,minMax(succ,n))
+            #val = min(val,minMax(succ,n))
+            mmval, ne = minMax(succ,n, nodes_expanded)
+            nodes_expanded = ne + 1
+            val = min(val,mmval)
     #printBoard(gameBoard)
-    return val
-
-
-def minMax2(gameBoard, turn):
-    if(gameOver(gameBoard)[0]):
-        print("game over, winner: "+ str(gameOver(gameBoard)[1]))
-        printBoard(gameBoard)
-        return staticEval(gameBoard)
-    
+    return (val, nodes_expanded)
 
 
 
@@ -230,6 +225,8 @@ def testCase(gameBoard):
 
     printBoard(gameBoard)
     print(minMax(gameBoard,1))
+
+
 def main():
     # get row and col from user
     #user_input = input("enter in row and col space seperated: ")
