@@ -98,8 +98,8 @@ def staticEval(gameBoard):
             if(possible2):
                 p2_wins+=1
 
-        print("p1 wins: " + str(p1_wins))
-        print("p2 wins: " + str(p2_wins))
+        #print("p1 wins: " + str(p1_wins))
+        #print("p2 wins: " + str(p2_wins))
 
         return p1_wins - p2_wins
 
@@ -134,22 +134,25 @@ def possibleSolutions(k):
 
     #print("possible solutions")
     #[print(s) for s in unique]
-    print()
+    #print()
 
     return unique
 
 def availMoves(gameBoard):
     moves = [[(i,j) for(j,x) in enumerate(row) if x==0] for (i,row) in enumerate(gameBoard)]
     moves = [j for i in moves for j in i]
-    print(moves)
+    #print(moves)
     return moves
 
-def minMax(gameBoard,depth,turn):
+nodes_expanded = 0
+def minMax(gameBoard,turn):
+    global nodes_expanded
     val = 0
     # if its a leaf node
-    if(gameOver(gameBoard)[0]) or depth == 0:
-        print("game over, winner: "+ str(gameOver(gameBoard)[1]))
-        printBoard(gameBoard)
+    if(gameOver(gameBoard)[1]==1 or gameOver(gameBoard)[1]==2):
+        #print("game over, winner: "+ str(gameOver(gameBoard)[1]))
+        print("nodes expanded: ",nodes_expanded)
+        #printBoard(gameBoard)
         return staticEval(gameBoard)
     
     # if its a max node
@@ -160,15 +163,15 @@ def minMax(gameBoard,depth,turn):
 
 
     for m in availMoves(gameBoard):
+        nodes_expanded = nodes_expanded +1
         n = 2 if turn==1 else 1
         succ = move(gameBoard,m[0],m[1],turn)
-        printBoard(succ)
+        #printBoard(succ)
         if(turn ==1):
-            val = max(val,minMax(succ,depth-1,n))
-            #print("max: " + str(val))
+            val = max(val,minMax(succ,n))
         else:
-            val = min(val,minMax(succ,depth-1,n))
-            #print("mmin: " + str(val))
+            val = min(val,minMax(succ,n))
+    #printBoard(gameBoard)
     return val
 
 
@@ -182,42 +185,51 @@ def minMax2(gameBoard, turn):
 
 
 def testCase(gameBoard):
-    '''
-    gameBoard = move(gameBoard,0,0,1)
-    gameBoard = move(gameBoard,0,1,2)
-    gameBoard = move(gameBoard,0,2,1)
+    gameBoard = move(gameBoard,0,0,2)
     gameBoard = move(gameBoard,0,3,2)
     gameBoard = move(gameBoard,1,0,2)
     gameBoard = move(gameBoard,1,1,1)
-    gameBoard = move(gameBoard,2,0,1)
-    gameBoard = move(gameBoard,3,0,2)
-    gameBoard = move(gameBoard,2,1,1)
-    gameBoard = move(gameBoard,2,2,2)
+    gameBoard = move(gameBoard,1,3,1)
+    gameBoard = move(gameBoard,2,0,2)
+    gameBoard = move(gameBoard,2,3,1)
     gameBoard = move(gameBoard,3,3,1)
     '''
-    '''
-    gameBoard = move(gameBoard,0,2,1)
+    test case 1
+    gameBoard = move(gameBoard,0,0,2)
+    gameBoard = move(gameBoard,0,3,2)
+    gameBoard = move(gameBoard,1,0,2)
     gameBoard = move(gameBoard,1,1,1)
     gameBoard = move(gameBoard,1,3,1)
-    gameBoard = move(gameBoard,2,2,1)
-    gameBoard = move(gameBoard,3,0,1)
-    '''
-    '''
-    gameBoard = move(gameBoard,0,0,1)
-    gameBoard = move(gameBoard,1,1,1)
-    gameBoard = move(gameBoard,2,2,1)
+    gameBoard = move(gameBoard,2,0,2)
+    gameBoard = move(gameBoard,2,3,1)
     gameBoard = move(gameBoard,3,3,1)
+    '''
+
+    '''
+    test case 2
+    gameBoard = move(gameBoard,0,0,1)
+    gameBoard = move(gameBoard,0,1,2)
+    gameBoard = move(gameBoard,0,2,2)
+    gameBoard = move(gameBoard,1,0,1)
+    gameBoard = move(gameBoard,1,1,1)
+    gameBoard = move(gameBoard,1,2,2)
+    gameBoard = move(gameBoard,3,0,2)
     gameBoard = move(gameBoard,3,1,1)
     '''
 
-    gameBoard = move(gameBoard, 0,0,1)
-    gameBoard = move(gameBoard, 0,1,2)
-    gameBoard = move(gameBoard, 0,2,1)
-    gameBoard = move(gameBoard, 0,3,2)
-    printBoard(gameBoard)
-    gameOver(gameBoard)
-    print(minMax(gameBoard,5,1))
+    '''
+    test case 3
+    gameBoard = move(gameBoard,0,0,2)
+    gameBoard = move(gameBoard,0,2,2)
+    gameBoard = move(gameBoard,1,0,1)
+    gameBoard = move(gameBoard,1,3,1)
+    gameBoard = move(gameBoard,2,0,1)
+    gameBoard = move(gameBoard,2,1,2)
+    gameBoard = move(gameBoard,3,3,1)
+    '''
 
+    printBoard(gameBoard)
+    print(minMax(gameBoard,1))
 def main():
     # get row and col from user
     #user_input = input("enter in row and col space seperated: ")
@@ -233,7 +245,7 @@ def main():
         gameBoard.append([])
         for j in range(col):
             gameBoard[i].append(0)
-    possibleSolutions(len(gameBoard))
+    #possibleSolutions(len(gameBoard))
     testCase(gameBoard)
     #printBoard(gameBoard)
     #print(minMax(gameBoard,0,1))
