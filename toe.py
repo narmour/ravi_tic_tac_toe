@@ -74,7 +74,7 @@ as follows: if its a win for player 1, the value is 100, if its a win for player
 then the value is -100. Otherwise, it is the number of ways in which player 1 can win
 minus the number of ways in which player 2 can win.
 '''
-def staticEval(gameBoard):
+def staticEval(gameBoard,player):
     status = gameOver(gameBoard)
     if(status[0] and status[1] == 1):
         return 100
@@ -101,7 +101,10 @@ def staticEval(gameBoard):
         #print("p1 wins: " + str(p1_wins))
         #print("p2 wins: " + str(p2_wins))
 
-        return p1_wins - p2_wins
+        if player ==1:
+            return p1_wins - p2_wins
+        else:
+            return p2_wins -p1_wins
 
 
 
@@ -144,7 +147,7 @@ def availMoves(gameBoard):
     #print(moves)
     return moves
 
-def minMax(gameBoard,turn, nodes_expanded=0):
+def minMax(gameBoard,turn, nodes_expanded=1):
     val = 0
     # if its a leaf node
     if(gameOver(gameBoard)[1]==1 or gameOver(gameBoard)[1]==2):
@@ -159,16 +162,17 @@ def minMax(gameBoard,turn, nodes_expanded=0):
     elif(turn==2):
         val = float('inf')
 
+    n = 2 if turn==1 else 1
 
     for m in availMoves(gameBoard):
         #nodes_expanded = nodes_expanded +1
-        n = 2 if turn==1 else 1
         succ = move(gameBoard,m[0],m[1],turn)
         #printBoard(succ)
         if(turn ==1):
             mmval, ne = minMax(succ,n, nodes_expanded)
             nodes_expanded = ne + 1
             val = max(val,mmval)
+            print(mmval)
         else:
             #val = min(val,minMax(succ,n))
             mmval, ne = minMax(succ,n, nodes_expanded)
@@ -176,6 +180,66 @@ def minMax(gameBoard,turn, nodes_expanded=0):
             val = min(val,mmval)
     #printBoard(gameBoard)
     return (val, nodes_expanded)
+
+
+num_expanded = 0
+def alphaBeta(gameBoard,alpha,beta,depth,turn):
+    global num_expanded
+    #if(depth ==0 or gameOver(gameBoard)[1] == 1 or gameOver(gameBoard)[1]==2):
+    if(depth==0 or gameOver(gameBoard)[1]==1):
+        print(num_expanded)
+        return staticEval(gameBoard,turn)
+    if turn ==1:
+        res = alpha
+        for m in availMoves(gameBoard):
+            num_expanded +=1
+            v = move(gameBoard,m[0],m[1],turn)
+            val = alphaBeta(v,res,beta,depth-1,2)
+            res = max(res,val)
+            if res>=beta:
+                return res
+    else:
+        res = beta
+        for m in availMoves(gameBoard):
+            num_expanded +=1
+            v = move(gameBoard,m[0],m[1],turn)
+            val = alphaBeta(v,alpha,res,depth-1,1)
+            res = min(res,val)
+            if res <= alpha:
+                return res
+    return res
+
+
+def wikipedia(gameBoard,alpha,beta,depth,turn):
+    global num_expanded
+    #if(depth ==0 or gameOver(gameBoard)[1] == 1 or gameOver(gameBoard)[1]==2):
+    if(depth==0 or gameOver(gameBoard)[0]):
+        print(num_expanded)
+        return staticEval(gameBoard)
+    if turn ==1:
+        v = -float('inf')
+        for m in availMoves(gameBoard):
+            num_expanded +=1
+            succ = move(gameBoard,m[0],m[1],turn)
+            v = max(v,alphaBeta(succ,alpha,beta,depth-1,2))
+            alpha = max(alpha,v)
+            if beta <= alpha:
+                break
+            return v
+    else:
+        v = float('inf')
+        for m in availMoves(gameBoard):
+            num_expanded +=1
+            succ = move(gameBoard,m[0],m[1],turn)
+            v = min(v,alphaBeta(succ,alpha,beta,depth-1,1))
+            beta = min(beta,v)
+            if beta <=alpha:
+                break
+            return v
+
+
+
+
 
 
 
@@ -188,6 +252,11 @@ def testCase(gameBoard):
     gameBoard = move(gameBoard,2,0,2)
     gameBoard = move(gameBoard,2,3,1)
     gameBoard = move(gameBoard,3,3,1)
+
+    #gameBoard = [[1,2,1,2],[2,1,0,0],[1,0,0,0],[2,0,0,0]]
+    #print(staticEval(gameBoard),1)
+
+
     '''
     test case 1
     gameBoard = move(gameBoard,0,0,2)
@@ -223,8 +292,11 @@ def testCase(gameBoard):
     gameBoard = move(gameBoard,3,3,1)
     '''
 
+    global num_expanded
     printBoard(gameBoard)
-    print(minMax(gameBoard,1))
+    #print(minMax(gameBoard,1))
+    print(alphaBeta(gameBoard,-float('inf'),float('inf'),6,1))
+    print(num_expanded)
 
 
 def main():
@@ -246,13 +318,6 @@ def main():
     testCase(gameBoard)
     #printBoard(gameBoard)
     #print(minMax(gameBoard,0,1))
-
-
-
-
-
-
-
 
 
 
