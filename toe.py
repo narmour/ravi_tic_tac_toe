@@ -102,7 +102,8 @@ def staticEval(gameBoard):
         #print("p2 wins: " + str(p2_wins))
 
         return p1_wins - p2_wins
-                
+
+    
 '''
     returns a list of all possible solutions to this game
     with row col  being filled
@@ -139,7 +140,6 @@ def availMoves(gameBoard):
     #print(moves)
     return moves
 
-
 def minMax(gameBoard,turn, nodes_expanded=1):
     # if its a leaf node
     #best_path = [gameBoard]
@@ -164,6 +164,7 @@ def minMax(gameBoard,turn, nodes_expanded=1):
     elif(turn==2):
         val = float('inf')
 
+    n = 2 if turn==1 else 1
 
     best_path = None
     best = [0, None]
@@ -230,6 +231,65 @@ def minMax(gameBoard, player, nodes_expanded=1):
     nodes_expanded += sum([s[1] for s in scores])
     return (val, nodes_expanded, best_path + [gameBoard])
     
+num_expanded = 0
+def alphaBeta(gameBoard,alpha,beta,depth,turn):
+    global num_expanded
+    #if(depth ==0 or gameOver(gameBoard)[1] == 1 or gameOver(gameBoard)[1]==2):
+    if(depth==0 or gameOver(gameBoard)[1]==1):
+        print(num_expanded)
+        return staticEval(gameBoard)
+    if turn ==1:
+        res = alpha
+        for m in availMoves(gameBoard):
+            num_expanded +=1
+            v = move(gameBoard,m[0],m[1],turn)
+            val = alphaBeta(v,res,beta,depth-1,2)
+            res = max(res,val)
+            if res>=beta:
+                return res
+    else:
+        res = beta
+        for m in availMoves(gameBoard):
+            num_expanded +=1
+            v = move(gameBoard,m[0],m[1],turn)
+            val = alphaBeta(v,alpha,res,depth-1,1)
+            res = min(res,val)
+            if res <= alpha:
+                return res
+    return res
+
+
+def wikipedia(gameBoard,alpha,beta,depth,turn):
+    global num_expanded
+    #if(depth ==0 or gameOver(gameBoard)[1] == 1 or gameOver(gameBoard)[1]==2):
+    if(depth==0 or gameOver(gameBoard)[0]):
+        print(num_expanded)
+        return staticEval(gameBoard)
+    if turn ==1:
+        v = -float('inf')
+        for m in availMoves(gameBoard):
+            num_expanded +=1
+            succ = move(gameBoard,m[0],m[1],turn)
+            v = max(v,alphaBeta(succ,alpha,beta,depth-1,2))
+            alpha = max(alpha,v)
+            if beta <= alpha:
+                break
+            return v
+    else:
+        v = float('inf')
+        for m in availMoves(gameBoard):
+            num_expanded +=1
+            succ = move(gameBoard,m[0],m[1],turn)
+            v = min(v,alphaBeta(succ,alpha,beta,depth-1,1))
+            beta = min(beta,v)
+            if beta <=alpha:
+                break
+            return v
+
+
+
+
+
 
 def testCase(gameBoard):
     gameBoard = move(gameBoard,0,0,2)
@@ -240,6 +300,11 @@ def testCase(gameBoard):
     gameBoard = move(gameBoard,2,0,2)
     gameBoard = move(gameBoard,2,3,1)
     gameBoard = move(gameBoard,3,3,1)
+
+    #gameBoard = [[1,2,1,2],[2,1,0,0],[1,0,0,0],[2,0,0,0]]
+    #print(staticEval(gameBoard),1)
+
+
     '''
     test case 1
     gameBoard = move(gameBoard,0,0,2)
@@ -293,6 +358,7 @@ def testCase(gameBoard):
                  [0,0,0,1]]
 
     
+    global num_expanded
     printBoard(gameBoard)
 
     val, nodes, states = minMax(gameBoard,1)
@@ -302,6 +368,11 @@ def testCase(gameBoard):
     for s in states:
         print (s, staticEval(s))
         printBoard(s)
+
+
+    #print(minMax(gameBoard,1))
+    print(alphaBeta(gameBoard,-float('inf'),float('inf'),6,1))
+    print(num_expanded)
 
 
 def main():
@@ -323,13 +394,6 @@ def main():
     testCase(gameBoard)
     #printBoard(gameBoard)
     #print(minMax(gameBoard,0,1))
-
-
-
-
-
-
-
 
 
 
