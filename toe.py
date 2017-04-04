@@ -102,17 +102,12 @@ def staticEval(gameBoard):
         #print("p2 wins: " + str(p2_wins))
 
         return p1_wins - p2_wins
-
-
-
-
                 
 '''
     returns a list of all possible solutions to this game
     with row col  being filled
 '''
 def possibleSolutions(k):
-
     solutions = []
     rowsTaken = []
     colsTaken=[]
@@ -144,40 +139,97 @@ def availMoves(gameBoard):
     #print(moves)
     return moves
 
-def minMax(gameBoard,turn, nodes_expanded=0):
-    val = 0
+
+def minMax(gameBoard,turn, nodes_expanded=1):
     # if its a leaf node
-    if(gameOver(gameBoard)[1]==1 or gameOver(gameBoard)[1]==2):
+    #best_path = [gameBoard]
+    gameover = gameOver(gameBoard)
+    #if gameOver(gameBoard)[1] == 1 or gameOver(gameBoard)[1] == 2:
         #print("game over, winner: "+ str(gameOver(gameBoard)[1]))
         #print("nodes expanded: ",nodes_expanded)
         #printBoard(gameBoard)
-        return (staticEval(gameBoard), nodes_expanded)
+    #    return (staticEval(gameBoard), nodes_expanded, [gameBoard])
+    #if gameover[0]:
+    #if gameover[1] == -1:
+    #    return (.5, nodes_expanded, [gameBoard])
+    if gameover[1] == 1:
+        return (1, nodes_expanded, [gameBoard])
+    if gameover[1] == 2:
+        return (0, nodes_expanded, [gameBoard])
     
     # if its a max node
+    val = 0
     if (turn==1):
         val = -float('inf')
     elif(turn==2):
         val = float('inf')
 
 
+    best_path = None
+    best = [0, None]
+    n = 2 if turn == 1 else 1
+    #printBoard(gameBoard)
+    #print(availMoves(gameBoard))
+    sval = 0
     for m in availMoves(gameBoard):
         #nodes_expanded = nodes_expanded +1
-        n = 2 if turn==1 else 1
         succ = move(gameBoard,m[0],m[1],turn)
         #printBoard(succ)
-        if(turn ==1):
-            mmval, ne = minMax(succ,n, nodes_expanded)
+        if turn == 1:
+            mmval, ne, bp = minMax(succ, n, nodes_expanded)
             nodes_expanded = ne + 1
             val = max(val,mmval)
+            #best_path = bp
+            best, best_path = [[val, gameBoard], bp] if val >= best[0] or best[1] == None else [best, best_path]
         else:
             #val = min(val,minMax(succ,n))
-            mmval, ne = minMax(succ,n, nodes_expanded)
+            mmval, ne, bp = minMax(succ, n, nodes_expanded)
             nodes_expanded = ne + 1
             val = min(val,mmval)
+            #best_path = bp
+            best, best_path = [[val, gameBoard], bp] if val <= best[0] or best[1] == None else [best, best_path]
+            #best = [val, gameBoard] if val >= best[0] or best[1] == None else best
+        #best = playerbest(succ, val, n, best)
     #printBoard(gameBoard)
-    return (val, nodes_expanded)
+    if best_path == None: # a draw happened
+        return (0, nodes_expanded, ['draw'])
+    return (val, nodes_expanded, best_path + [best[1]])
 
+def minMax(gameBoard, player, nodes_expanded=1):
+    gameover = gameOver(gameBoard)
 
+    if gameover[1] == -1:
+        return (.5, nodes_expanded, [gameBoard])
+    if gameover[1] == 1:
+        return (1, nodes_expanded, [gameBoard])
+    if gameover[1] == 2:
+        return (0, nodes_expanded, [gameBoard])
+
+    nextplayer = 2 if player == 1 else 1
+    scores = [minMax(succ, nextplayer, nodes_expanded) for succ in [move(gameBoard, m[0], m[1], player) for m in availMoves(gameBoard)]]
+
+    best_path = None
+    val = 0
+    if player == 1:
+        val = -float("inf")
+    else:
+        val = float("inf")
+
+    for s in scores:
+        mmval, ne, bp = s
+        if player == 1:
+            if val <= mmval:
+                best_path = bp
+                val = mmval
+        else:
+            val = min(val, mmval)
+            if val >= mmval:
+                best_path = bp
+                val = mmval
+
+    nodes_expanded += sum([s[1] for s in scores])
+    return (val, nodes_expanded, best_path + [gameBoard])
+    
 
 def testCase(gameBoard):
     gameBoard = move(gameBoard,0,0,2)
@@ -223,8 +275,33 @@ def testCase(gameBoard):
     gameBoard = move(gameBoard,3,3,1)
     '''
 
+    gameBoard = [[1,2,1,2],
+                 [2,1,0,0],
+                 [1,0,0,0],
+                 [2,0,0,0]]
+
+    print(staticEval(gameBoard))
+    
+    gameBoard = [[2,0,2,0],
+                 [1,0,0,1],
+                 [1,2,0,0],
+                 [0,0,0,1]]
+
+    gameBoard = [[2,0,0,2],
+                 [2,1,0,1],
+                 [2,0,0,1],
+                 [0,0,0,1]]
+
+    
     printBoard(gameBoard)
-    print(minMax(gameBoard,1))
+
+    val, nodes, states = minMax(gameBoard,1)
+    states.reverse()
+    print (val, nodes)
+    print(states)
+    for s in states:
+        print (s, staticEval(s))
+        printBoard(s)
 
 
 def main():
