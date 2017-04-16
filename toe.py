@@ -1,6 +1,8 @@
 import itertools
 import math
 import copy
+import random
+
 '''
  prints out the board
 '''
@@ -177,6 +179,7 @@ def minMax2(gameBoard, player, nodes_expanded=1):
     return (val, nodes_expanded, best_path + [gameBoard], winner)
     
 
+outfile = open('minimax.txt',"w")
 def miniMax(gameBoard, player, nodes_expanded=1):
     gameover = gameOver(gameBoard)
 
@@ -212,6 +215,7 @@ def miniMax(gameBoard, player, nodes_expanded=1):
                 winner = wn
     
     nodes_expanded += sum([s[1][2] for s in scores])
+    outfile.write("%s: %s\n"% ('1' if val == 0 else '2' if val == 1 else '0', ' '.join(["%d %d %d %d" % (z[0], z[1],z[2],z[3]) for z in board])))
     return (board, val, nodes_expanded, winner)
 
     
@@ -316,6 +320,21 @@ def testCase(gameBoard, player=1):
     print()
 
 
+def getRandomBoard():
+    turns = random.randint(1, 16)
+    board = [[0,0,0,0], [0,0,0,0], [0,0,0,0], [0,0,0,0]]
+    for i in range(turns):
+        next = availMoves(board)
+        m = random.choice(next)
+        board = move(board, m[0], m[1], 1 if i % 2 == 0 else 2)
+        
+    return [board, turns%2 + 1]
+
+def generateTrainingSet():
+    while True:
+        board, turn = getRandomBoard()
+        
+
 def main():
     # get row and col from user
     #user_input = input("enter in row and col space seperated: ")
@@ -336,11 +355,22 @@ def main():
     #printBoard(gameBoard)
     #print(minMax(gameBoard,0,1))
 
+    #printBoard(getRandomBoard()[0])
+    #printBoard(getRandomBoard()[0])
+    #printBoard(getRandomBoard()[0])
+    #printBoard(getRandomBoard()[0])
+    
+    #generateTrainingSet()
+    
+
     gameBoard = [[2,0,0,2],
                  [2,1,0,1],
                  [2,0,0,1],
                  [0,0,0,1]]
-    testCase(gameBoard)
+
+    miniMax(gameBoard, 1)
+    return
+    #testCase(gameBoard)
 
     gameBoard = [[1,2,0,0],
                  [1,0,2,0],
