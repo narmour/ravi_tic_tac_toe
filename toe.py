@@ -183,7 +183,6 @@ def minMax2(gameBoard, player, nodes_expanded=1):
     return (val, nodes_expanded, best_path + [gameBoard], winner)
     
 
-outfile = open('minimax.txt',"w")
 def miniMax(gameBoard, player, nodes_expanded=1):
     gameover = gameOver(gameBoard)
 
@@ -219,7 +218,7 @@ def miniMax(gameBoard, player, nodes_expanded=1):
                 winner = wn
     
     nodes_expanded += sum([s[1][2] for s in scores])
-    outfile.write("%s: %s\n"% ('1' if val == 0 else '2' if val == 1 else '0', ' '.join(["%d %d %d %d" % (z[0], z[1],z[2],z[3]) for z in board])))
+    print("%s: %s\n"% ('1' if val == 0 else '2' if val == 1 else '0', ' '.join(["%d %d %d %d" % (z[0], z[1],z[2],z[3]) for z in board])))
     return (board, val, nodes_expanded, winner)
 
     
