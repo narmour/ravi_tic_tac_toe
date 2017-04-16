@@ -335,9 +335,7 @@ def getRandomBoard():
 def generateTrainingSet():
     while True:
         board, turn = getRandomBoard()
-        printBoard(board)
         b, val, np, wn = miniMax(board, turn)
-        print("nodes: %d", np)
 
 def main():
     # get row and col from user
