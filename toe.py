@@ -218,7 +218,7 @@ def miniMax(gameBoard, player, nodes_expanded=1):
                 winner = wn
     
     nodes_expanded += sum([s[1][2] for s in scores])
-    print("%s: %s\n"% ('1' if val == 0 else '2' if val == 1 else '0', ' '.join(["%d %d %d %d" % (z[0], z[1],z[2],z[3]) for z in board])))
+    print("%s: %s" % ('1' if val == 0 else '2' if val == 1 else '0', ' '.join(["%d %d %d %d" % (z[0], z[1],z[2],z[3]) for z in board])))
     return (board, val, nodes_expanded, winner)
 
     
