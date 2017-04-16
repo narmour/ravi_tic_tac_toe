@@ -102,7 +102,7 @@ def possibleSolutions(k):
 
     return unique
 
-ps = possibleSolutions(len(board))
+ps = possibleSolutions(4)
 
 
 '''
