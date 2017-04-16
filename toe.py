@@ -1,6 +1,7 @@
 import itertools
 import math
 import copy
+import random
 '''
  prints out the board
 '''
@@ -44,7 +45,9 @@ def gameOver(board):
                 p1.append((i,j))
             elif(board[i][j] ==2):
                 p2.append((i,j))
-    ps = possibleSolutions(len(board))
+    #ps = possibleSolutions(len(board))
+    global s
+    ps = s
 
     p1_p = list(itertools.combinations(p1,len(board)))
     for p in p1_p:
@@ -142,14 +145,14 @@ def minMax2(gameBoard, player, nodes_expanded=1):
     gameover = gameOver(gameBoard)
 
     if gameover[1] == -1:
-        return (.5, nodes_expanded, [gameBoard], 0)
+        return (.5, nodes_expanded, [gameBoard], 0.5)
     if gameover[1] == 1:
-        return (1, nodes_expanded, [gameBoard], 1)
+        return (1, nodes_expanded, [gameBoard], 0)
     if gameover[1] == 2:
-        return (0, nodes_expanded, [gameBoard], 2)
+        return (0, nodes_expanded, [gameBoard], 1)
 
     nextplayer = 2 if player == 1 else 1
-    scores = [minMax(succ, nextplayer, nodes_expanded) for succ in [move(gameBoard, m[0], m[1], player) for m in availMoves(gameBoard)]]
+    scores = [minMax2(succ, nextplayer, nodes_expanded) for succ in [move(gameBoard, m[0], m[1], player) for m in availMoves(gameBoard)]]
 
     best_path = None
     val = 0
@@ -285,17 +288,17 @@ def alphaBeta(gameBoard, alpha, beta, depth, turn, nodes_expanded=1):
 
         
 def testCase(gameBoard, player=1):
-    print("board:")
-    printBoard(gameBoard)
-    print()
+    #print("board:")
+    #printBoard(gameBoard)
+    #print()
 
     print("minimax:")
-    #val, nodes, states, winner = minMax(gameBoard, player)
-    board, val, nodes, winner = miniMax(gameBoard, player)
+    val, nodes, states, winner = minMax2(gameBoard, player)
+    #board, val, nodes, winner = miniMax(gameBoard, player)
     #states.reverse()
     #for s in states:
     #    printBoard(s)
-    printBoard(board)
+    #printBoard(states[0])
     #print ("val: " + str(val))
     print ("winner: " + str(winner))
     print ("nodes: " + str(nodes))
@@ -315,7 +318,32 @@ def testCase(gameBoard, player=1):
     print()
     print()
 
+def getRandomBoard():
+    turns = random.randint(1, 16)
+    board = [[0,0,0,0], [0,0,0,0], [0,0,0,0], [0,0,0,0]]
+    for i in range(turns):
+        next = availMoves(board)
+        m = random.choice(next)
+        board = move(board, m[0], m[1], 1 if i % 2 == 0 else 2)
+        
+    return [board, turns%2 + 1]
 
+
+def generateTrainingSet(board):
+ while True:
+        board, turn = getRandomBoard()
+        val, nodes,states,winner = minMax2(board,turn)
+        # write shit to file
+        output_file = open('./training_data.txt','a')
+        for s in states:
+            for i in range(4):
+                for j in range(4):
+                    output_file.write(str(s[i][j]) + ' ')
+            output_file.write(str(winner) + '\n')
+        output_file.close()
+		
+
+s = []
 def main():
     # get row and col from user
     #user_input = input("enter in row and col space seperated: ")
@@ -335,30 +363,31 @@ def main():
     #testCase(gameBoard)
     #printBoard(gameBoard)
     #print(minMax(gameBoard,0,1))
-
+    global s
+    s = possibleSolutions(4)
     gameBoard = [[2,0,0,2],
                  [2,1,0,1],
                  [2,0,0,1],
                  [0,0,0,1]]
-    testCase(gameBoard)
+    #testCase(gameBoard)
+    generateTrainingSet(gameBoard)
 
     gameBoard = [[1,2,0,0],
                  [1,0,2,0],
                  [2,0,0,1],
                  [2,0,0,1]]
-    testCase(gameBoard)
+    #testCase(gameBoard)
     
     gameBoard = [[1,2,2,0],
                  [1,1,2,0],
                  [0,0,0,0],
                  [2,1,0,0]]
-    testCase(gameBoard)
-
+    #testCase(gameBoard)
     gameBoard = [[2,0,2,0],
                  [1,0,0,1],
                  [1,2,0,0],
                  [0,0,0,1]]
-    testCase(gameBoard, 2)
+    #testCase(gameBoard, 2)
 
 
 
