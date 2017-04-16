@@ -365,7 +365,8 @@ def main():
     #printBoard(getRandomBoard()[0])
     #printBoard(getRandomBoard()[0])
     
-    #generateTrainingSet()
+    generateTrainingSet()
+    return
     
 
     gameBoard = [[2,0,0,2],
