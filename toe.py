@@ -1,13 +1,8 @@
 import itertools
 import math
 import copy
-<<<<<<< HEAD
 import random
 
-||||||| merged common ancestors
-=======
-import random
->>>>>>> f8047ff7d47627439f0ab4c84f48d33790cbdf41
 '''
  prints out the board
 '''
@@ -37,40 +32,6 @@ def move(board,i,j,player):
         return board
     return b
 
-
-'''
-returns true if it finds a player has won
-returns false if no player has own
-'''
-def gameOver(board):
-    p1 = []
-    p2 = []
-    for i in range(len(board)):
-        for j in range(len(board[i])):
-            if(board[i][j] ==1):
-                p1.append((i,j))
-            elif(board[i][j] ==2):
-                p2.append((i,j))
-    #ps = possibleSolutions(len(board))
-    global s
-    ps = s
-
-    p1_p = list(itertools.combinations(p1,len(board)))
-    for p in p1_p:
-        if list(p) in ps:
-            return(True,1)
-
-    p2_p = list(itertools.combinations(p2,len(board)))
-    for p in p2_p:
-        if list(p) in ps:
-            return (True,2)
-
-    if len(p1) + len(p2) == len(board) * len(board[0]):
-        return (True, -1)
-    
-
-
-    return (False,0)
 
 
 
@@ -140,6 +101,42 @@ def possibleSolutions(k):
     #print()
 
     return unique
+
+ps = possibleSolutions(len(board))
+
+
+'''
+returns true if it finds a player has won
+returns false if no player has own
+'''
+def gameOver(board):
+    p1 = []
+    p2 = []
+    for i in range(len(board)):
+        for j in range(len(board[i])):
+            if(board[i][j] ==1):
+                p1.append((i,j))
+            elif(board[i][j] ==2):
+                p2.append((i,j))
+
+    p1_p = list(itertools.combinations(p1,len(board)))
+    for p in p1_p:
+        if list(p) in ps:
+            return(True,1)
+
+    p2_p = list(itertools.combinations(p2,len(board)))
+    for p in p2_p:
+        if list(p) in ps:
+            return (True,2)
+
+    if len(p1) + len(p2) == len(board) * len(board[0]):
+        return (True, -1)
+    
+
+
+    return (False,0)
+
+
 
 def availMoves(gameBoard):
     moves = [[(i,j) for(j,x) in enumerate(row) if x==0] for (i,row) in enumerate(gameBoard)]
@@ -339,7 +336,9 @@ def getRandomBoard():
 def generateTrainingSet():
     while True:
         board, turn = getRandomBoard()
-        
+        printBoard(board)
+        b, val, np, wn = miniMax(board, turn)
+        print("nodes: %d", np)
 
 def main():
     # get row and col from user
