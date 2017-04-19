@@ -97,9 +97,9 @@ def trainWeights(one_training,five_training,epochs):
             label = t[6]
             res = np.dot(t[:6],weights)
 
-            if res ==1 and label !=1:
+            if res >0 and label !=1:
                 weights = np.subtract(t[:6],weights).tolist()
-            elif res ==0 and label!=5:
+            elif res <=0 and label!=5:
                 weights = np.add(t[:6],weights).tolist()
         epochs-=1
 
@@ -115,9 +115,9 @@ def error(weights,test):
     for t in test:
         label = t[6]
         res = np.dot(t[:6],weights)
-        if res ==1 and label !=1:
+        if res >0 and label !=1:
             e+=1
-        elif res ==0 and label!=5:
+        elif res <=0 and label!=5:
             e+=1
     print("ERRORS")
     print(e)
