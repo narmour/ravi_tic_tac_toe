@@ -2,6 +2,7 @@ import numpy as np
 import struct
 from matplotlib import pyplot
 import matplotlib as mpl
+import random
 
 
 
@@ -33,10 +34,18 @@ def pixelDensity(pixels):
 
 
 def symmetry(pixels):
-    flipped = np.fliplr(pixels)
-    mag = np.linalg.norm(flipped-pixels)
-    mag /= mag/pixelDensity(pixels)
-    return 1-mag
+    horiz_flipped = np.fliplr(pixels)
+    horiz_mag = np.linalg.norm(horiz_flipped-pixels)
+    horiz_mag /= horiz_mag/pixelDensity(pixels)
+
+    vert_flipped = np.flipud(pixels)
+    vert_mag = np.linalg.norm(vert_flipped-pixels)
+    vert_mag /= vert_mag/pixelDensity(pixels)
+
+
+
+
+    return ((1-horiz_mag),(1-vert_mag))
 
 def intersections(pixels):
     #horizontal intersections
@@ -87,50 +96,52 @@ def show(image):
 
 
 
-def trainWeights(one_training,five_training,epochs):
-    weights = [0,0,0,0,0,0]
+def trainWeights(one_training,five_training,onet,fivet,epochs):
+    weights = [-1,0,0,0,0,0,0,0]
     training = one_training + five_training
+    np.random.shuffle(training)
+    best_err = float('inf')
+    best_weights = []
 
 
     while epochs > 0:
         for t in training:
-            label = t[6]
-            res = np.dot(t[:6],weights)
+            label = t[8]
+            res = np.dot(t[:8],weights)
 
             if res >0 and label !=1:
-                weights = np.subtract(t[:6],weights).tolist()
+                weights = np.subtract(t[:8],weights).tolist()
             elif res <=0 and label!=5:
-                weights = np.add(t[:6],weights).tolist()
+                weights = np.add(t[:8],weights).tolist()
         epochs-=1
+        #pocket algorithm
+        errors = error(weights,onet+fivet)
+        if errors < best_err:
+            best_err = errors
+            best_weights = weights
 
 
     print("FINAL WEIGHTS")
     print(weights)
-    return weights
+
+    print("final errors")
+    print(best_err)
+    return best_weights
 
 
 
 def error(weights,test):
     e = 0
+    np.random.shuffle(test)
     for t in test:
-        label = t[6]
-        res = np.dot(t[:6],weights)
+        label = t[8]
+        res = np.dot(t[:8],weights)
         if res >0 and label !=1:
             e+=1
         elif res <=0 and label!=5:
             e+=1
-    print("ERRORS")
     print(e)
-
-
-def perceptron(one_training,five_training):
-    print("yo")
-
-
-
-    
-
-
+    return e
 
 
 
@@ -153,19 +164,20 @@ def main():
         pd_1 = pixelDensity(one_training_samples[i][1])
         pd_5 = pixelDensity(five_training_samples[i][1])
 
-        symm_1 = symmetry(one_training_samples[i][1])
-        symm_5 = symmetry(five_training_samples[i][1])
+        symmetries_1 = symmetry(one_training_samples[i][1])
+        symmetries_5 = symmetry(five_training_samples[i][1])
 
         inter_1 = intersections(one_training_samples[i][1])
         inter_5 = intersections(five_training_samples[i][1])
 
+        one_training_features.append([1,pd_1,symmetries_1[0],symmetries_1[1],inter_1[0],inter_1[1],
+            inter_1[2],inter_1[3],one_training_samples[i][0]])
 
-        one_training_features.append([pd_1,symm_1,inter_1[0],
-            inter_1[1],inter_1[2],inter_1[3],one_training_samples[i][0]])
+        five_training_features.append([1,pd_5,symmetries_5[0],symmetries_5[1],inter_5[0],inter_5[1],
+            inter_5[2],inter_5[3],five_training_samples[i][0]])
 
-        five_training_features.append([pd_5,symm_5,inter_5[0],
-            inter_5[1],inter_5[2],inter_5[3],five_training_samples[i][0]])
-        #print(five_training_features[i][:6])
+        print(five_training_features[i])
+
 
     # extract features to create test data
     one_testing_features = []
@@ -174,23 +186,23 @@ def main():
         pd_1 = pixelDensity(one_test_samples[i][1])
         pd_5 = pixelDensity(five_test_samples[i][1])
 
-        symm_1 = symmetry(one_test_samples[i][1])
-        symm_5 = symmetry(five_test_samples[i][1])
+        symmetries_1 = symmetry(one_training_samples[i][1])
+        symmetries_5 = symmetry(five_training_samples[i][1])
 
         inter_1 = intersections(one_test_samples[i][1])
         inter_5 = intersections(five_test_samples[i][1])
 
 
-        one_testing_features.append([pd_1,symm_1,inter_1[0],
+        one_testing_features.append([1,pd_1,symmetries_1[0],symmetries_1[1],inter_1[0],
             inter_1[1],inter_1[2],inter_1[3],one_test_samples[i][0]])
 
-        five_testing_features.append([pd_5,symm_5,inter_5[0],
+        five_testing_features.append([1,pd_5,symmetries_5[0],symmetries_5[1],inter_5[0],
             inter_5[1],inter_5[2],inter_5[3],five_test_samples[i][0]])
         #print(five_training_features[i][:6])
 
 
-    weights = trainWeights(one_training_features,five_training_features,100)
-    error(weights,five_testing_features+one_testing_features)
+    weights = trainWeights(one_training_features,five_training_features,one_testing_features,five_testing_features,1000)
+    #error(weights,five_testing_features+one_testing_features)
 
 
 
