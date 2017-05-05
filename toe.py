@@ -2,6 +2,9 @@ import itertools
 import math
 import copy
 import random
+import heapq
+import numpy as np
+from sklearn.naive_bayes import GaussianNB
 
 '''
  prints out the board
@@ -223,7 +226,7 @@ def miniMax(gameBoard, player, nodes_expanded=1):
 
     
 
-def alphaBeta(gameBoard, alpha, beta, depth, turn, nodes_expanded=1):
+def alphaBetazzzzz(gameBoard, alpha, beta, depth, turn, nodes_expanded=1):
     if(depth == 0 or gameOver(gameBoard)[0]):
         return [staticEval(gameBoard), nodes_expanded, [gameBoard]]
 
@@ -288,6 +291,59 @@ def alphaBeta(gameBoard, alpha, beta, depth, turn, nodes_expanded=1):
             if beta <= alpha:
                 break
         return (succ, v, nodes_expanded)
+
+def alphaBetaNB(classifier, gameBoard, alpha, beta, depth, turn, nodes_expanded=1):
+    if(depth == 0 or gameOver(gameBoard)[0]):
+        return [gameBoard, staticEval(gameBoard), nodes_expanded]
+
+    moves = availMoves(gameBoard)
+    #print(moves)
+    #a = [[b for b in board for b in b] for board in moves]
+    #print(a)
+    #q = classifier.predict()
+    #print(q)
+    #z = [(classifier.predict([b for b in board for b in b]), board) for board in moves]
+    #print(z)
+    #scored = heapq.heapify(z)
+    #print("gb:", gameBoard)
+    #printBoard(gameBoard)
+    #print(moves)
+    scored = [(classifier.predict([[b for b in board for b in b]]), board) for board in [move(gameBoard, m[0], m[1], turn) for m in moves]]
+    #print(scored)
+    #heapq.heapify(scored)
+    #print("sc:", list(scored))
+    scored.sort(key=lambda a: a[0])
+    #print("sc:", list(scored))
+    scored = [a[1] for a in scored]
+    
+    
+    if turn == 1:
+        v = -float('inf')
+        best = scored[-1]
+        for succ in scored:
+            #succ = move(gameBoard, m[0], m[1], turn)
+            board, t, ne = alphaBetaNB(classifier, succ, alpha, beta, depth-1, 2, nodes_expanded)
+            nodes_expanded = ne+1
+            v = max(v, t)
+            alpha = max(alpha, v)
+            if beta <= alpha:
+                best = succ
+                break
+        return (best, v, nodes_expanded)
+    else:
+        v = float('inf')
+        best = scored[-1]
+        for succ in scored:
+            #succ = move(gameBoard, m[0], m[1], turn)
+            board, t, ne = alphaBetaNB(classifier, succ, alpha, beta, depth-1, 1, nodes_expanded)
+            nodes_expanded = ne+1
+            v = min(v, t)
+            beta = min(beta, v)
+            if beta <= alpha:
+                best = succ
+                break
+        return (best, v, nodes_expanded)
+
 
 
         
@@ -362,19 +418,70 @@ def main():
     #printBoard(getRandomBoard()[0])
     #printBoard(getRandomBoard()[0])
     
-    generateTrainingSet()
-    return
+    #generateTrainingSet()
+    #return
     
 
     gameBoard = [[2,0,0,2],
                  [2,1,0,1],
                  [2,0,0,1],
                  [0,0,0,1]]
-    
 
-    miniMax(gameBoard, 1)
-    return
+    gameBoard = [[1,2,0,0],
+                 [1,0,2,0],
+                 [2,0,0,1],
+                 [2,0,0,1]]
+    print("alphabeta:")
+    #print(minMax(gameBoard,1))
+    #print(alphaBeta(gameBoard,-float('inf'),float('inf'),6,1))
+    board, val, nodes = alphaBeta(gameBoard, -float('inf'), float('inf'), 6, 1)
+    printBoard(board)
+    #for s in states:
+        #print (s, staticEval(s))
+    #    printBoard(s)
+    print ("root val: " + str(val))
+    print ("nodes: " + str(nodes))
+    print("-"*20)
+    print()
+    print()
+
+    
+    print("alphabeta NB:")
+    tdata = []
+    labels = []
+    with open("training.txt") as f:
+        for line in f:
+            k, v = line.split(":")
+            #labels.append(.5 if k == '0' else 0 if k == '1' else 1)
+            labels.append(int(k))
+            v = v.strip().split(' ')
+            #tdata.append([v[0:4], v[4:8], v[8:12], v[12:16]])
+            tdata.append([int(z) for z in v])
+    classifier = GaussianNB()
+    #print(labels[:10])
+    #print(tdata[:10])
+    #X = np.array([[-1, -1], [-2, -1], [-3, -2], [1, 1], [2, 1], [3, 2]])
+    #Y = np.array([1, 1, 1, 2, 2, 2])
+    #classifier.fit(X, Y)
+    
+    #classifier.fit(tdata[:10], labels[:10])
+    classifier.fit(tdata, labels)
+
+    board, val, nodes = alphaBetaNB(classifier, gameBoard, -float('inf'), float('inf'), 6, 1)
+    printBoard(board)
+    #for s in states:
+        #print (s, staticEval(s))
+    #    printBoard(s)
+    print ("root val: " + str(val))
+    print ("nodes: " + str(nodes))
+    print("-"*20)
+
+    
+    #miniMax(gameBoard, 1)
+    #return
     #testCase(gameBoard)
+
+    return
 
     gameBoard = [[1,2,0,0],
                  [1,0,2,0],
