@@ -431,6 +431,13 @@ def main():
                  [1,0,2,0],
                  [2,0,0,1],
                  [2,0,0,1]]
+
+    gameBoard = [[2,0,2,0],
+                 [1,0,0,1],
+                 [1,2,0,0],
+                 [0,0,0,1]]
+
+    
     print("alphabeta:")
     #print(minMax(gameBoard,1))
     #print(alphaBeta(gameBoard,-float('inf'),float('inf'),6,1))
