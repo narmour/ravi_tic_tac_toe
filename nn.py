@@ -35,35 +35,28 @@ def show(image):
 
 def extractFeatures(data):
     print
-    ret = []
+    subgrid_values = []
     for image in data:
-        subgrid_values = []
         #print(image[1])
         #get all 7x7 subgrids in image[1]
         for s in range(16):
             values = []#one subgrid
+            #print("subrgrid: ",s,"starts at   row: ",7 * int((s/4))," col: ",7* (s%4))
             for i in range(7):
                 for j in range(7):
-                    row = i + (4 * (s/4))
+                    row = i + (7 * int((s/4)))
                     col = j + (7 * (s % 4))
-                    #print("i: ",row," j: ",col)
+                    #print("row: ",row," col: ",col)
                     values.append(image[1][row][col])
-            print("subrgrid: ",s)
-            print(values,"\n\n")
+            subgrid_values.append(np.mean(values))
+            #print(values,"\n\n")
+
+
+    return subgrid_values
 
             
 
         
-
-
-
-
-
-
-
-
-            
-
 
 
 def main():
@@ -71,7 +64,8 @@ def main():
     print(len(data))
     # 28 by 28 pixel grid
     # each feature is 7x7 subgrid
-    training_data = extractFeatures(data[:1])
-    show(data[0][1])
+    training_data = extractFeatures(data[:54000])
+    #show(data[0][1])
+    print(training_data)
 
 main()
