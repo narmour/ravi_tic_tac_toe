@@ -3,6 +3,7 @@ import struct
 from matplotlib import pyplot
 import matplotlib as mpl
 import random
+from sklearn.neural_network import MLPClassifier
 
 
 def getData():
@@ -34,9 +35,9 @@ def show(image):
 
 
 def extractFeatures(data):
-    print
-    subgrid_values = []
+    res = []
     for image in data:
+        subgrid_values = []
         #print(image[1])
         #get all 7x7 subgrids in image[1]
         for s in range(16):
@@ -50,9 +51,10 @@ def extractFeatures(data):
                     values.append(image[1][row][col])
             subgrid_values.append(np.mean(values))
             #print(values,"\n\n")
+        res.append((subgrid_values,image[0]))
 
 
-    return subgrid_values
+    return res
 
             
 
@@ -61,11 +63,39 @@ def extractFeatures(data):
 
 def main():
     data = getData()
-    print(len(data))
     # 28 by 28 pixel grid
     # each feature is 7x7 subgrid
     training_data = extractFeatures(data[:54000])
-    #show(data[0][1])
-    print(training_data)
+    test_data = extractFeatures(data[54000:])
+
+    #split training_data
+    train_features = [t[0] for t in training_data]
+    train_labels = [t[1] for t in training_data]
+
+    #make nn
+    c = MLPClassifier()
+    c.fit(train_features,train_labels)
+
+    #predict on test_data
+    test_features = [t[0] for t in test_data]
+    test_labels = [t[1] for t in test_data]
+    res = c.predict(test_features)
+
+    #check results
+    err = 0
+    for p in range(len(res)):
+        if res[p] != test_labels[p]:
+            err+=1
+    print("RESULT: ",len(res) - err, "/",len(res), "CORRECT     ", int((float(len(res)) - float(err))/float(len(res))*100),"%")
+
+
+
+    
+
+
+
+
+
+
 
 main()
